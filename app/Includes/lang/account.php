@@ -1,0 +1,35 @@
+<?php
+$key_lang = [
+    'create_new',
+    'show_title',
+    'full_name',
+    'email',
+    'password',
+    'address',
+    'address_holder',
+    'upload_image',
+    'reset',
+    'edit',
+    'edit_title',
+    'full_name_holder',
+    'email_holder',
+    'password_holder',
+    'full_name_required',
+    'email_required',
+    'email_email',
+    'password_required',
+    'password_min',
+    'phone_number',
+    'phone_number_holder',
+    'update',
+    'back_to_home',
+    'not_exist',
+    'email_used',
+    'success',
+    'update_success',
+    'error',
+    'max_size',
+    'choose_language'
+];
+
+?>

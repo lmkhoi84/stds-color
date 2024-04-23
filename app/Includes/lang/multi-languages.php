@@ -1,0 +1,36 @@
+<?php
+$key_lang = [
+//Translation
+    'translate_list',
+    //add
+    'add_title',
+    //form
+    'update',
+    'back_to_list',
+    'list_title',
+    'translate_page',
+    'status',
+    'action',
+    'enable',
+    'disable',
+    'update_language',
+    'language_name',
+    'code',
+    'sort',
+    'sort_holder',
+    'name_holder',
+    'code_holder',
+    'code_required',
+    'create_new',
+    'name_en_required',
+    'success',
+    'error',
+    'add_success',
+    'update_success',
+    'delete_success',
+    'data_error',
+    'is_exist',
+    'status_changed',
+    'ask_delete'
+];
+?>

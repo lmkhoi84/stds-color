@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Basic ComboTree - jQuery EasyUI Demo</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"/>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  </head>
+  <body>
+	<input type="text" id="name" value="">
+	<script type="text/javascript">
+		$(function() {
+        var availableTags = [
+            "ActionScript",
+            "AppleScript",
+            "Asp",
+            "BASIC",
+            "C",
+            "C++",
+            "Clojure",
+            "COBOL",
+            "ColdFusion",
+            "Erlang",
+            "Fortran",
+            "Groovy",
+            "Haskell",
+            "Java",
+            "JavaScript",
+            "Lisp",
+            "Perl",
+            "PHP",
+            "Python",
+            "Ruby",
+            "Scala",
+            "Scheme"
+        ];
+        
+        //$( "#autolist" ).textbox({});
+        
+        $( "#name" ).combobox({
+            data: availableTags,
+            hasDownArrow: false,
+            loadFilter: function(data){
+            	return $.map(data, function(item){
+              	return {
+              		value: item,
+                	text: item
+                }
+              })
+            }
+        });
+    });
+	</script>
+  </body>
+</html>

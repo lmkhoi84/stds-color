@@ -1,0 +1,144 @@
+.logo-header {
+    width: 38px;
+    height: 38px;
+}
+
+.header-font {
+    font-size: 22px;
+}
+
+.table thead th {
+    font-weight: bold;
+    background-color: #27A9E3 !important;
+}
+
+.Odd{
+    background-color: rgb(218, 218, 218) !important;
+    cursor: pointer;
+}
+
+.Even{
+    background-color: #f0f0f0 !important;
+    cursor: pointer;
+}
+
+.show_hide {
+    width: 19px !important;
+    height: 19px;
+    cursor: pointer;
+}
+
+.table tbody th img {
+    width: 15px;
+    height: 19px;
+    cursor: pointer;
+}
+
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+    background-color: rgb(161, 160, 160);
+    color: white;
+}
+
+.table-striped > tbody > tr:nth-child(2n+1) > td, .table-striped > tbody > tr:nth-child(2n+1) > th {
+    background-color: rgb(192, 191, 191);
+}
+
+.hidden{
+    visibility: hidden;
+    display: none;
+}
+
+.dataTables_wrapper .dataTables_length {
+    position: relative;
+    top: 7px;
+    margin-right: 50px;
+}
+
+.text-black{
+    color: black ;
+}
+
+button.buttons-html5,
+.buttons-print {
+    background-image: linear-gradient(to bottom, #27A9E3 100%, #0f308b 100%) !important;
+}
+
+.dataTables_wrapper .dt-buttons {
+    float: right;
+    margin-left: 20px;
+}
+
+a.current {
+    background-image: linear-gradient(to bottom, #27A9E3 100%, #27A9E3 100%) !important;
+}
+
+span.checkmark {
+    margin-left: 15px;
+}
+
+#edit-icon {
+    margin-left: 15px;
+}
+
+#delete-icon {
+    margin-left: 15px;
+}
+
+.div-radio {
+    line-height: 26px;
+    padding-right: 15px;
+}
+
+span.textbox {
+    margin: 5px 0px -25px 0px;
+}
+
+.custom-radio label {
+    cursor: pointer;
+}
+
+.border-right {
+    border-right: 1px solid;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.export-button{
+    width: 75px;
+}
+
+.list-search-input{
+    width: 200px;
+}
+
+.product_name{
+    white-space:normal !important;
+}
+
+.rows_ie_details{
+    line-height: 1.5;
+    padding-top: calc(0.375rem + 1px);
+    padding-bottom: calc(0.375rem + 1px);
+}
+
+.canvasjs-chart-credit{
+    visibility: hidden;
+}
+
+.amenu{
+    padding-left: 0px;
+}
+
+.dmenu{
+    padding-left: 15px !important;
+}

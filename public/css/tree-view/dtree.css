@@ -1,0 +1,163 @@
+/*!
+ * dtree.css v1.0.0
+ * mefe.net
+ * 2014-08-21
+ */
+
+ #js-tree-view{
+    font-size: 13px;
+ }
+
+#js-tree-view ul, li
+{
+    margin:0px;
+    padding: 0px;
+    list-style-type: none;
+}
+
+#js-tree-view a
+{
+    position: relative;
+    top: -1px;
+    height: 18px;
+    display: inline-block;
+    padding-top: 0px;
+    color:#000;
+    text-decoration: none;
+    font-size: 11px;
+    line-height: 18px;
+}
+
+#js-tree-view a:hover{
+    color: red;
+}
+
+#js-tree-view .text
+{
+    height: 18px;
+    display: inline-block;
+    text-decoration: none;
+}
+
+
+#js-tree-view li
+{
+    height: 18px;
+    display: block;
+    width: 500px;
+    line-height: 18px;
+}
+
+#js-tree-view li.folder-group
+{
+    height: auto;
+
+}
+
+#js-tree-view .folder-group ul
+{
+   padding-left: 20px;
+   display: none;
+}
+
+#js-tree-view .folder
+{
+    background: url('/images/tree-view/misc.png') 0px -39px no-repeat;
+    padding-left: 20px;
+     height: 18px;
+    display: inline-block;
+    float: left;
+    transition: all 0.5s ease-in-out;
+}
+
+#js-tree-view .folder-open
+{
+    background: url('/images/tree-view/misc.png') -21px -39px no-repeat;
+    padding-left: 20px;
+    height: 18px;
+    display: inline-block;
+    float: left;
+    transition: all 0.5s ease-in-out;
+}
+
+#js-tree-view .main
+{
+    background: url('/images/tree-view/misc.png') 2px 0 no-repeat;
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    float: left;
+}
+
+#js-tree-view .folder-group
+{
+    background: url('/images/tree-view/misc.png') -46px -2px repeat-y;
+}
+
+#js-tree-view .folder-group.last
+{
+   background: none;
+}
+
+#js-tree-view .plus
+{
+    background: url('/images/tree-view/misc.png') 0px -59px no-repeat;
+    padding-left: 20px;
+    display: inline-block;
+    height: 18px;
+    float: left;
+}
+
+#js-tree-view .last .plus
+{
+    background: url('/images/tree-view/misc.png') 0px -82px no-repeat;
+    padding-left: 20px;
+    display: inline-block;
+    height: 18px;
+    float: left;
+}
+
+#js-tree-view .folder-group.last .minus
+{
+    background: url('/images/tree-view/misc.png') -18px -82px no-repeat;
+    padding-left: 20px;
+    display: inline-block;
+    height: 18px;
+    float: left;
+}
+
+#js-tree-view .minus
+{
+    background: url('/images/tree-view/misc.png') -18px -59px no-repeat #fff;
+    padding-left: 20px;
+    display: inline-block;
+    height: 18px;
+    float: left;
+}
+
+#js-tree-view .page
+{
+    background: url('/images/tree-view/misc.png') no-repeat;
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    float: left;
+}
+
+#js-tree-view .join
+{
+    background: url('/images/tree-view/misc.png') 0 -20px no-repeat;
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    float: left;
+}
+
+#js-tree-view .join-last .join
+{
+    background: url('/images/tree-view/misc.png') -18px -20px no-repeat;
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    float: left;
+}

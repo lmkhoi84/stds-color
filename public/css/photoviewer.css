@@ -1,0 +1,85 @@
+.photoviewer-stage {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, .85);
+    border: none;
+  }
+
+  .photoviewer-header .photoviewer-toolbar {
+    background-color: rgba(0, 0, 0, .5);
+  }
+
+  .photoviewer-footer {
+    bottom: 10px;
+  }
+
+  .photoviewer-footer .photoviewer-toolbar {
+    background-color: rgba(0, 0, 0, .5);
+    border-radius: 5px;
+  }
+
+  .photoviewer-header,
+  .photoviewer-footer {
+    pointer-events: none;
+  }
+
+  .photoviewer-title {
+    color: red;
+    font-weight: bold;
+  }
+
+  
+.modal-title{
+  color: red;
+}
+
+  .photoviewer-button {
+    color: #ccc;
+    pointer-events: auto;
+  }
+
+  .photoviewer-footer .photoviewer-button:hover {
+    color: white;
+  }
+
+  .modal-content{
+    width: 598px;
+  }
+  .image-set{
+    white-space: normal !important;
+  }
+
+  .image-set img{
+    width: 75px !important;
+    height: 75px !important;
+    float: left;
+    margin-left: 5px;
+    margin-top: 5px;
+    vertical-align: auto;
+  }
+
+  .photoviewer img{
+    cursor: pointer;
+  }
+  button.close {
+    float: right !important;
+  }
+
+  .modal-content{
+    border-radius:6px;
+  }
+
+  .modal-title{
+    position: absolute;
+    float: left !important;
+    white-space: normal;
+    margin: 0 40px 0 0;
+    max-height: 80px !important;
+  }
+
+  .modal-header{
+    position: relative;
+    height: 75px;
+  }
