@@ -88,8 +88,8 @@ Route::group(['middleware' => ['ChangeLanguage', 'CheckLogin','WebConfig']], fun
         Route::get('', [UsersController::class,'listGroup']);
         Route::get('/add', [UsersController::class,'addNewGroup']);
         Route::post('/add', [UsersController::class,'storeUsersGroup']);
-        Route::get('/edit/{id?}', [UsersController::class,'editGroup']);
-        Route::put('/edit', [UsersController::class,'updateGroup']);
+        Route::get('/edit/{id}', [UsersController::class,'editUsersGroup']);
+        Route::put('/edit/{id}', [UsersController::class,'updateUsersGroup']);
         Route::get('/change-status/{id}', [UsersController::class,'changeGroupStatus']);
         Route::delete('/delete/{id}', [UsersController::class,'destroyGroup']);
     });

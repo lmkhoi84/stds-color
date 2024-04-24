@@ -419,6 +419,8 @@ class UsersController extends Controller
     }
 
     public function addNewGroup(){
+        $menus = StructuresController::getMenusPermission();
+        write_file_permissions_tree_json($this->path_menus, $menus, 0);
         return view('UsersGroup.add',['add' => false,'search' => false]);
     }
 
@@ -444,6 +446,43 @@ class UsersController extends Controller
         return redirect($this->main_page.'/users-group')->with(['type' => 'success', 'alert_messenge' => $this->alert['success'] . ' "' . $data["name"] . '" ' . $this->alert['add_success']]);
     }
 
+    public function editUsersGroup($id){
+        $item = $this->getUsersGroupById($id);
+        if (!$item){
+            return redirect('users/users-group')->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] .' '. $this->alert['dataNotExist']]);
+        }
+        $menus = StructuresController::getMenusPermission();
+        $menus_permission = explode(',', $item->menus_permission);
+        write_file_permissions_tree_json($this->path_menus, $menus, 0, $menus_permission);
+        return view('UsersGroup.edit',['item' => $item]);
+    }
+
+    public function updateUsersGroup(Request $request,$id){
+        $data = $request->all();
+        session(['updateAccount' => $request->all()]);
+        if (!$request->status) $data['status'] = 0;
+
+        $this->validate($request, [
+            'name' => 'required',
+        ], [
+            'name.required' => $this->alert['name_required'],
+        ]);
+
+        if ($id != $data['group_id']){
+            return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] .' '. $this->alert['data_error']]);
+        }
+
+        $item = $this->checkDublicateUsersGroupByName($id,$data['name']);
+        if ($item){
+            return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] .' '.$data['name'] .' '. $this->alert['has_been_used']]);
+        }
+        
+        $this->updateGroup($data);
+
+        Session::forget('addUsersGroup');
+        return redirect($this->main_page.'/users-group')->with(['type' => 'success', 'alert_messenge' => $this->alert['success'] . ' "' . $data["name"] . '" ' . $this->alert['add_success']]);
+    }
+
     public function changeGroupStatus($id){
         $item = $this->getUsersGroupById($id);
         if ($item) {
@@ -457,6 +496,15 @@ class UsersController extends Controller
         }
     }
 
+    public function destroyGroup($id){
+        $item = $this->getUsersGroupById($id);
+        if (!$item){
+            return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] . ' ' . $this->alert['data_error']]);
+        }
+        $name = $item->name;
+        $item->delete($id);
+        return redirect('users/users-group')->with(['type' => 'success', 'alert_messenge' => $this->alert['success'] . ' "' . $name . '" ' . $this->alert['delete_success']]);
+    }
     /* End User Group */
 
     ///////////////////////////////
@@ -592,6 +640,10 @@ class UsersController extends Controller
         return Users_Group::where('name',$name)->first();
     }
 
+    private function checkDublicateUsersGroupByName($id,$name){
+        return Users_Group::where('id','!=',$id)->where('name',$name)->first();
+    }
+
     private function getActiveUserGroup(){
         return Users_Group::where('status',1)->orderBy('sort')->get();
     }
@@ -604,6 +656,16 @@ class UsersController extends Controller
         $item->menus_permission = $data['menus_permission'];
         $item->save();
     }
+
+    private function updateGroup($data){
+        $item = $this->getUsersGroupById($data['group_id']);
+        $item->name = $data['name'];
+        $item->sort = $data['sort'];
+        $item->status = $data['status'];
+        $item->menus_permission = $data['menus_permission'];
+        $item->save();
+    }
+
     /* End Users Group*/
 
     //Public staic function
