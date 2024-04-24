@@ -30,8 +30,27 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $list = $this->getUserList();
-        return view('Users.list',['itemsList' => $list,'add' => true,'search' => true]);
+        if (!isset($_GET['show'])) {
+            $limit = 30;
+        } elseif ($_GET['show'] == 0) {
+            if (!isset($_GET['search']) || $_GET['search'] == '') {
+                $limit = 100;
+            } else {
+                $limit = 9999999999;
+            }
+        } else {
+            $limit = $_GET['show'];
+        }
+
+        if (!isset($_GET['search']) || $_GET['search'] == '') {
+            $key = '';
+        } else {
+            $key = $_GET['search'];
+        }
+
+        $list = $this->getUserList($key,$limit);
+        $list->appends(['show' => $limit,'search' => $key]);
+        return view('Users.list',['itemsList' => $list,'add' => true,'search' => true, 'limit' => $limit, 'key' => $key]);
     }
 
     /**
@@ -56,7 +75,7 @@ class UsersController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        if($request->status) $data['status'] = 1;
+        if($request->status) $data['status'] = 0;
 
         session(['addUser' => $request->all()]);
 
@@ -123,19 +142,6 @@ class UsersController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show()
-    {
-        $user = session('user');
-        if (empty($user->avatar)) $user->avatar = 'no-image.jpg';
-        return view('Users.profile',['item' => $user]);
-    }
-
-    /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
@@ -164,7 +170,92 @@ class UsersController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+        $file = $request->file('profile_picture');
+        if(!$request->status) $data['status'] = 0;
+        session(['updateUser' => $request->except('profile_picture')]);
+
+        $this->validate($request, [
+            'full_name' => 'required',
+            'email' => 'required|email',
+            
+            'user_group' => 'required',
+            'default_language' => 'required'
+        ], [
+            'full_name.required' => $this->alert['full_name_required'],
+            'email.required' => $this->alert['email_required'],
+            'email.email' => $this->alert['email_email'],
+            
+        ]);
+
+        if ($request->password){
+            $this->validate($request,[
+                'password' => 'required|min:8',
+            ],[
+                'password.required' => $this->alert['password_required'],
+                'password.min' => $this->alert['password_min'],
+            ]);
+        }
+
+        if ($id != $data['user_id']){
+            return redirect($data['previous_page'])->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] .' '. $this->alert['dataNotExist']]);
+        }
+
+        $item = $this->getUserById($data['user_id']);
+        if (!$item){
+            return redirect($data['previous_page'])->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] .' '. $this->alert['dataNotExist']]);
+        }
+
+        if ($this->checkDublicateEmail($data['user_id'],$data['email'])){
+            return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] .' '.$data['email'] .' '. $this->alert['has_been_used']]);
+        }
+
+        $imagePath = 'images/users';
+        if (!File::isDirectory($imagePath)) {
+            File::makeDirectory($imagePath, 0777, true, true);
+        }
+        $allowExtension = ['jpeg', 'png', 'jpg', 'gif'];
+        //$file = $request->file('profile_picture');
+        if ($request->hasFile('profile_picture')) {
+            if ($file->isValid()) {
+                $extension = $file->getClientOriginalExtension();
+
+                if (!in_array($extension, $allowExtension)) {
+                    return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] . ' ' . $this->alert['error_extension']]);
+                }
+                $file_name = $data['email'].'-'.time().'.'.$extension;
+                $have_file = true;
+                $old_file = $item->profile_picture;
+            } else {
+                return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] . ' ' . $this->alert['error_image']]);
+            }
+        } else {
+            $file_name = '';
+            $have_file = false;
+        }
+
+        $data['profile_picture'] = $file_name;
+
+        // $extends = array_filter(explode(', ', $request->extends_id));
+        // $extends_id = '';
+        // for ($i = 0; $i < count($extends); $i++) {
+        //     $u = User::where('email', $extends[$i])->first();
+        //     if ($u) {
+        //         $extends_id .= $u->id . ",";
+        //     }
+        // }
+
+        $this->updateUser($data);
+
+        if ($have_file) {
+            $file->move($imagePath, $file_name);
+            if (!empty($old_file)){
+                File::delete(public_path($imagePath.'/' . $old_file));
+            }
+        }
+        
+        Session::forget('updateUser');
+        return redirect($data['previous_page'])->with(['type' => 'success', 'alert_messenge' => $this->alert['success'] . ' "' . $data["email"] . '" ' . $this->alert['update_success']]);
     }
 
     /**
@@ -175,29 +266,196 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $item = $this->getUserById($id);
+        if (!$item){
+            return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] .' '. $this->alert['dataNotExist']]);
+        }else{
+            $profile_picture = public_path('images/users/' .$item->profile_picture);
+            $email = $item->email;
+            File::delete($profile_picture);
+            $item->delete();
+            return redirect('users/users-list')->with(['type' => 'success', 'alert_messenge' => $this->alert['success'] . ' "' . $email . '" ' . $this->alert['delete_success']]);
+        }
     }
 
     public function changeStatus($id){
-        $user = $this->getUserById($id);
-        if ($user && $user->id != 1) {
-            if ($user->status == 0) $status = 1;
+        $item = $this->getUserById($id);
+        if ($item && $item->id != 1) {
+            if ($item->status == 0) $status = 1;
             else $status = 0;
-            $user->status = $status;
-            $user->save();
-            return redirect()->back()->with(['type' => 'success', 'alert_messenge' => $this->alert['success'] . ' "' . $user->email . '" ' . $this->alert['status_changed']]);
+            $item->status = $status;
+            $item->save();
+            return redirect()->back()->with(['type' => 'success', 'alert_messenge' => $this->alert['success'] . ' "' . $item->email . '" ' . $this->alert['status_changed']]);
         } else {
-            return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] . ' "' . $user->email . '" ' . $this->alert['data_error']]);
+            return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] . ' "' . $item->email . '" ' . $this->alert['data_error']]);
         }
     }
 
     
-    //End User List
+    //End Users List
+
+    /* Account */
+
+        /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function account()
+    {
+        $item = Session::get('user');
+        if (empty($item->profile_picture)) $item->profile_picture = 'no-image.jpg';
+        return view('Users.profile',['item' => $item]);
+    }
+
+    public function updateAccount(Request $request,$id)
+    {
+        $data = $request->all();
+        $file = $request->file('profile_picture');
+        if(!$request->status) $data['status'] = 0;
+        session(['updateAccount' => $request->except('profile_picture')]);
+
+        $this->validate($request, [
+            'full_name' => 'required',
+            'email' => 'required|email',
+            'default_language' => 'required'
+        ], [
+            'full_name.required' => $this->alert['full_name_required'],
+            'email.required' => $this->alert['email_required'],
+            'email.email' => $this->alert['email_email'],
+            
+        ]);
+
+        if ($request->password){
+            $this->validate($request,[
+                'password' => 'required|min:8',
+            ],[
+                'password.required' => $this->alert['password_required'],
+                'password.min' => $this->alert['password_min'],
+            ]);
+        }
+
+        if ($id != $data['user_id']){
+            return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] .' '. $this->alert['dataNotExist']]);
+        }
+
+        $item = $this->getUserById($data['user_id']);
+        if (!$item){
+            return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] .' '. $this->alert['dataNotExist']]);
+        }
+
+        if ($this->checkDublicateEmail($data['user_id'],$data['email'])){
+            return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] .' '.$data['email'] .' '. $this->alert['has_been_used']]);
+        }
+
+        $imagePath = 'images/users';
+        if (!File::isDirectory($imagePath)) {
+            File::makeDirectory($imagePath, 0777, true, true);
+        }
+        $allowExtension = ['jpeg', 'png', 'jpg', 'gif'];
+        //$file = $request->file('profile_picture');
+        if ($request->hasFile('profile_picture')) {
+            if ($file->isValid()) {
+                $extension = $file->getClientOriginalExtension();
+
+                if (!in_array($extension, $allowExtension)) {
+                    return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] . ' ' . $this->alert['error_extension']]);
+                }
+                $file_name = $data['email'].'-'.time().'.'.$extension;
+                $have_file = true;
+                $old_file = $item->profile_picture;
+            } else {
+                return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] . ' ' . $this->alert['error_image']]);
+            }
+        } else {
+            $file_name = '';
+            $have_file = false;
+        }
+
+        $data['profile_picture'] = $file_name;
+
+        $this->updateProfile($data);
+
+        if ($have_file) {
+            $file->move($imagePath, $file_name);
+            if (!empty($old_file)){
+                File::delete(public_path($imagePath.'/'.$old_file));
+            }
+        }
+
+        $item = $this->getUserById($id);
+        Session::put('user',$item);
+        Session::forget('updateAccount');
+        return redirect()->back()->with(['type' => 'success', 'alert_messenge' => $this->alert['success'] . ' "' . $data["email"] . '" ' . $this->alert['update_success']]);
+    }
+
+    /* End Account */
 
     /* User Group */
 
+    public function listGroup(){
+        if (!isset($_GET['show'])) {
+            $limit = 30;
+        } elseif ($_GET['show'] == 0) {
+            if (!isset($_GET['search']) || $_GET['search'] == '') {
+                $limit = 100;
+            } else {
+                $limit = 9999999999;
+            }
+        } else {
+            $limit = $_GET['show'];
+        }
 
+        if (!isset($_GET['search']) || $_GET['search'] == '') {
+            $key = '';
+        } else {
+            $key = $_GET['search'];
+        }
 
+        $list = $this->getGroupList($key,$limit);
+        $list->appends(['show' => $limit,'search' => $key]);
+        return view('UsersGroup.list',['itemsList' => $list,'add' => true,'search' => true, 'limit' => $limit, 'key' => $key]);
+    }
+
+    public function addNewGroup(){
+        return view('UsersGroup.add',['add' => false,'search' => false]);
+    }
+
+    public function storeUsersGroup(Request $request){
+        $data = $request->all();
+        session(['updateAccount' => $request->all()]);
+        if (!$request->status) $data['status'] = 0;
+
+        $this->validate($request, [
+            'name' => 'required',
+        ], [
+            'name.required' => $this->alert['name_required'],
+        ]);
+
+        $item = $this->getUsersGroupByName($data['name']);
+        if ($item){
+            return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] .' '.$data['name'] .' '. $this->alert['has_been_used']]);
+        }
+        
+        $this->addUsersGroup($data);
+
+        Session::forget('addUsersGroup');
+        return redirect($this->main_page.'/users-group')->with(['type' => 'success', 'alert_messenge' => $this->alert['success'] . ' "' . $data["name"] . '" ' . $this->alert['add_success']]);
+    }
+
+    public function changeGroupStatus($id){
+        $item = $this->getUsersGroupById($id);
+        if ($item) {
+            if ($item->status == 0) $status = 1;
+            else $status = 0;
+            $item->status = $status;
+            $item->save();
+            return redirect()->back()->with(['type' => 'success', 'alert_messenge' => $this->alert['success'] . ' "' . $item->name . '" ' . $this->alert['status_changed']]);
+        } else {
+            return redirect()->back()->with(['type' => 'danger', 'alert_messenge' => $this->alert['error'] . ' ' . $this->alert['data_error']]);
+        }
+    }
 
     /* End User Group */
 
@@ -240,23 +498,29 @@ class UsersController extends Controller
         return redirect('login');
     }
 
-    /////////////////////////////////
-    private function getUserList(){
-        return Users::select('users.*','gr.name AS group_name','gr.menus_permission AS gr_menus_permission')
+    /* User List*/
+    private function getUserList($key,$limit){
+        $list =  Users::select('users.*','gr.name AS group_name','gr.menus_permission AS gr_menus_permission')
         ->leftJoin('users_group AS gr','gr.id','=','users.user_group')
-        ->orderBy('id')->paginate(20);
+        ->where(function ($query) use ($key) {
+            $query->orWhere('users.full_name', 'LIKE', '%' . $key . '%');
+            $query->orWhere('users.email', 'LIKE', '%' . $key . '%');
+            $query->orWhere('users.address', 'LIKE', '%' . $key . '%');
+            $query->orWhere('users.phone_number', 'LIKE', '%' . $key . '%');
+            $query->orWhere('users.id_card', 'LIKE', '%' . $key . '%');
+            $query->orWhere('gr.name', 'LIKE', '%' . $key . '%');
+        })
+        ->orderBy('email')
+        ->paginate($limit);
+        return $list;
     }
 
     private function getUserById($id){
         return Users::find($id);
     }
 
-    private function getUserByEmail($email){
-        return Users::where('email',$email)->first();
-    }
-
-    private function getActiveUserGroup(){
-        return Users_Group::where('status',1)->orderBy('sort')->get();
+    private function checkDublicateEmail($id,$email){
+        return Users::where('id','!=',$id)->where('email',$email)->first();
     }
 
     private function addUser($data){
@@ -273,5 +537,77 @@ class UsersController extends Controller
         $item->default_language = $data['default_language'];
         $item->menus_permission = $data['menus_permission'];
         $item->save();
+    }
+
+    private function updateUser($data){
+        $item = Users::find($data['user_id']);
+        $item->full_name = $data['full_name'];
+        $item->email = $data['email'];
+        if (!empty($data['password'])){
+            $item->password = Hash::make($data['password']);
+        }
+        $item->address = $data['address'];
+        $item->phone_number = $data['phone_number'];
+        $item->id_card = $data['id_card'];
+        $item->user_group = $data['user_group'];
+        $item->status = $data['status'];
+        if (!empty($data['profile_picture'])){
+            $item->profile_picture = $data['profile_picture'];
+        }
+        $item->default_language = $data['default_language'];
+        $item->menus_permission = $data['menus_permission'];
+        $item->save();
+    }
+
+    private function updateProfile($data){
+        $item = Users::find($data['user_id']);
+        $item->full_name = $data['full_name'];
+        $item->email = $data['email'];
+        if (!empty($data['password'])){
+            $item->password = Hash::make($data['password']);
+        }
+        $item->address = $data['address'];
+        $item->phone_number = $data['phone_number'];
+        $item->id_card = $data['id_card'];
+        if (!empty($data['profile_picture'])){
+            $item->profile_picture = $data['profile_picture'];
+        }
+        $item->default_language = $data['default_language'];
+        $item->save();
+    }
+
+    /* Users Group*/
+    private function getGroupList($key,$limit){
+        $list = Users_Group::where('name', 'LIKE', '%' . $key . '%')
+        ->orderBy('sort')
+        ->paginate($limit);
+        return $list;
+    }
+
+    private function getUsersGroupById($id){
+        return Users_Group::find($id);
+    }
+
+    private function getUsersGroupByName($name){
+        return Users_Group::where('name',$name)->first();
+    }
+
+    private function getActiveUserGroup(){
+        return Users_Group::where('status',1)->orderBy('sort')->get();
+    }
+
+    private function addUsersGroup($data){
+        $item = new Users_Group();
+        $item->name = $data['name'];
+        $item->sort = $data['sort'];
+        $item->status = $data['status'];
+        $item->menus_permission = $data['menus_permission'];
+        $item->save();
+    }
+    /* End Users Group*/
+
+    //Public staic function
+    public static function getUserByEmail($email){
+        return Users::where('email',$email)->first();
     }
 }

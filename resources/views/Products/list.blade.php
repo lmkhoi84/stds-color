@@ -24,8 +24,8 @@
             <div class="card-body">
 
                 <div class="container-fluid">
-                    <div class="row mb-1">
-                        <div class="col-md-5 text-left col-xs-4 mt-1">
+                    <div class="row mb-3">
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-4 mt-1 ps-0 text-start">
                             <label>{{$translate->trans_page['show']}}</label>
                             <select class="form-control-sm" id="limit" name="limit" onchange="click_search()">
                                 <option value="30" {{($limit==30?'selected':'')}}>30</option>
@@ -37,7 +37,7 @@
                             </select>
                             <label>{{$translate->trans_page['rows_per_page']}}</label>
                         </div>
-                        <div class="col-md-7 text-right col-xs-4 text-right">
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-4 text-end">
                             <input type="button" class="btn btn-success text-white export-button" name="excel" id="excel" value=" Excel ">
                             <input type="button" class="btn btn-danger text-white export-button" name="pdf" id="pdf" value=" PDF ">
                             <input type="button" class="btn btn-primary text-white export-button" name="print" id="print" value=" Print ">
@@ -47,7 +47,7 @@
 
                 <form method="POST" id="form_search">
                     @csrf
-                    <div class="table-responsive">
+                    <div class="table-responsive" id="table-list">
                         <input type="hidden" id="key" name="key" value="{{($key?$key:'')}}">
                         <input type="hidden" id="show" name="show" value="{{($limit?$limit:'')}}">
                         <div class="table-responsive text-nowrap" style="min-height: 300px;">

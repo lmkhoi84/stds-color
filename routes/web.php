@@ -50,7 +50,7 @@ Route::group(['middleware' => ['ChangeLanguage', 'CheckLogin','WebConfig']], fun
         Route::get('/add/{pid?}', [StructuresController::class,'addNew']);
         Route::post('/add', [StructuresController::class,'store']);
         Route::get('/edit/{id?}', [StructuresController::class,'edit']);
-        Route::put('/edit', [StructuresController::class,'update']);
+        Route::put('/edit/{id}', [StructuresController::class,'update']);
         Route::delete('/delete/{id}', [StructuresController::class,'destroy']);
     });
 
@@ -73,26 +73,26 @@ Route::group(['middleware' => ['ChangeLanguage', 'CheckLogin','WebConfig']], fun
         Route::get('', [UsersController::class,'index']);
         Route::get('/add', [UsersController::class,'addNew']);
         Route::post('/add', [UsersController::class,'store']);
-        Route::get('/edit/{id?}', [UsersController::class,'edit']);
-        Route::put('/edit', [UsersController::class,'update']);
+        Route::get('/edit/{id}', [UsersController::class,'edit']);
+        Route::put('/edit/{id}', [UsersController::class,'update']);
         Route::get('/change-status/{id}', [UsersController::class,'changeStatus']);
         Route::delete('/delete/{id}', [UsersController::class,'destroy']);
+    });
+
+    Route::prefix('account')->group(function () {
+        Route::get('', [UsersController::class,'account']);
+        Route::put('/edit/{id}', [UsersController::class,'updateAccount']);
     });
 
     Route::prefix('users/users-group')->group(function () {
         Route::get('', [UsersController::class,'listGroup']);
         Route::get('/add', [UsersController::class,'addNewGroup']);
-        Route::post('/add', [UsersController::class,'storeGroup']);
+        Route::post('/add', [UsersController::class,'storeUsersGroup']);
         Route::get('/edit/{id?}', [UsersController::class,'editGroup']);
         Route::put('/edit', [UsersController::class,'updateGroup']);
-        Route::get('/change-status/{id}', [UsersController::class,'changeStatusGroup']);
+        Route::get('/change-status/{id}', [UsersController::class,'changeGroupStatus']);
         Route::delete('/delete/{id}', [UsersController::class,'destroyGroup']);
     });
-
-    Route::prefix('account')->group(function () {
-        Route::get('', [UsersController::class,'show']);
-    });
-
     //Expand
 
     Route::prefix('materials')->group(function () {

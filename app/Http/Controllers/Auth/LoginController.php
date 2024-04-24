@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
+use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use App\User;
 
 class LoginController extends Controller
 {
@@ -35,8 +34,7 @@ class LoginController extends Controller
         $email = $request->email;
         $password = $request->password;
         if (Auth::attempt(['email' => $email, 'password' => $password])) {
-            //$user = User::join('users_group AS g','g.id','=','users.group')->select('users.*','g.menus_permission AS m_p','products_permission AS p_p')->where('email', $request->email)->first();
-            $user = User::where('email', $request->email)->first();
+            $user = UsersController::getUserByEmail($request->email);
             $user->last_login = date('Y-m-d H:i:s');
             $user->save();
             $request->session()->put('user', $user);

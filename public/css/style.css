@@ -142,3 +142,7 @@ span.textbox {
 .dmenu{
     padding-left: 15px !important;
 }
+
+#table-list{
+    min-height: 400px;
+}

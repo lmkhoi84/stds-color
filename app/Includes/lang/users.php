@@ -1,6 +1,12 @@
 <?php
 $key_lang =[
     'list_title',
+    'all',
+    'show',
+    'edit',
+    'delete',
+    'back_to_list',
+    'rows_per_page',
     'avatar',
     'full_name',
     'email',
@@ -66,6 +72,8 @@ $key_lang =[
     'name',
     'name_holder',
     'name_required',
+    'sort',
+    'sort_holder',
     'group_required',
     'is_denied'
 ];
