@@ -194,6 +194,9 @@ Session::forget('status');
 <!-- Autoconplete -->
 <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
 <script src="{{asset('js/autocomplete.js')}}"></script>
+
+<script src="{{asset('ckeditor/ckeditor.js')}}"></script>
+
 <script src="{{asset('js/script.js')}}"></script>
 <script>
     var products = {!! $pList !!};
@@ -207,5 +210,7 @@ Session::forget('status');
             materialDetail_autocomplete(materialsList, rowId);
         });
     }
+
+    CKEDITOR.replace('formula');
 </script>
 @endsection

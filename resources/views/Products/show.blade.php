@@ -131,7 +131,7 @@
                             <div class="mb-3 row">
                                 <label for="formula" class="col-md-2 col-form-label {{$errors->has('formula')?'text-danger':''}}">{{$translate->trans_page['formula']}}</label>
                                 <div class="col-md-10">
-                                    <textarea class="form-control" id="formula" name="formula" rows="10" style="width: 100%;" readonly>{{Session::has('formula')?Session::get('formula'):$item->formula}}</textarea>
+                                    {!! Session::has('formula')?Session::get('formula'):$item->formula !!}
                                 </div>
                             </div>
 
